@@ -25,7 +25,7 @@ try:
         connection, client_address = sock.accept()
         logging.info(f"connection from {client_address}")
         # Receive the data in small chunks and retransmit it
-        with open("test.txt", "wb") as f:
+        with open("received.txt", "wb") as f:
             while True:
                 data = connection.recv(1024)  # Receive 1 KB at a time
                 if data:

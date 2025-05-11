@@ -15,7 +15,7 @@ try:
     sock.connect(server_address)
 
     # Send data
-    with open("test.txt", "rb") as f:
+    with open("sent.txt", "rb") as f:
         file_data = f.read()  # Read the file content
         logging.info(f"sending file data")
         sock.sendall(file_data)  # Send the entire file at once
