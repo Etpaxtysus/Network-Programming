@@ -20,7 +20,7 @@ class ProcessTheClient(threading.Thread):
     def run(self):
         while True:
             try:
-                data = self.connection.recv(32)
+                data = self.connection.recv(16384)
                 if data:
                     d = data.decode()
                     hasil = fp.proses_string(d)

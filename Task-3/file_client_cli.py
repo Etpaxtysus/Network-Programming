@@ -18,7 +18,7 @@ def send_command(command_str=""):
         data_received = ""  # empty string
         while True:
             # socket does not receive all data at once, data comes in part, need to be concatenated at the end of process
-            data = sock.recv(16)
+            data = sock.recv(8192)
             if data:
                 # data is not empty, concat with previous content
                 data_received += data.decode()
@@ -83,15 +83,23 @@ def remote_upload(filename="", filecontent=""):
     else:
         print(f"Gagal: {hasil['data']}")  # Print the error message
         return False
-
+        
+def remote_delete(filename=""):
+    command_str = f"DELETE {filename}"
+    hasil = send_command(command_str)
+    if (hasil['status'] == 'OK'):
+        print(hasil['data'])
+        return True
+    else:
+        print(f"Gagal: {hasil['data']}")  # Print the error message
+        return False
 
 if __name__ == '__main__':
     server_address = ('172.16.16.101', 6667)
     remote_list()
-    # remote_get('donalbebek.jpg') # Pastikan file ini ada di server
+    # remote_get('test.txt') # Pastikan file ini ada di server
 
-    # Contoh Upload
-    filename = 'hello.txt'
+    filename = 'donalbebek.jpg'
     try:
         with open(filename, 'rb') as file:  # Baca file dalam mode binary
             file_content = base64.b64encode(file.read()).decode()
@@ -100,6 +108,5 @@ if __name__ == '__main__':
     except FileNotFoundError:
         print(f"Error: File '{filename}' not found.")
 
-    # # Contoh Delete
-    # remote_delete('test_upload.txt')
+    # remote_delete('donalbebek.jpg')
     remote_list()
