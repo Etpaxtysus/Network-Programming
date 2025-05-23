@@ -5,7 +5,6 @@ import logging
 
 server_address = ('0.0.0.0', 7777)
 
-
 def send_command(command_str=""):
     global server_address
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -36,7 +35,6 @@ def send_command(command_str=""):
         logging.warning(f"error during data receiving: {e}")
         return {'status': 'ERROR', 'data': str(e)}  # Return an error dictionary
 
-
 def remote_list():
     command_str = f"LIST"
     hasil = send_command(command_str)
@@ -49,7 +47,6 @@ def remote_list():
         print(f"Gagal: {hasil['data']}")
         return False
 
-
 def remote_get(filename=""):
     command_str = f"GET {filename}"
     hasil = send_command(command_str)
@@ -59,7 +56,7 @@ def remote_get(filename=""):
         file_content = hasil['data_file'].strip()  # Bersihkan string
         logging.warning(f"String base64 sebelum decode (client): {file_content}")  # Log string
 
-        # Penanganan padding eksplisit (mungkin tidak perlu)
+        # Penanganan padding eksplisit
         missing_padding = len(file_content) % 4
         if missing_padding:
             file_content += '=' * (4 - missing_padding)
@@ -73,17 +70,26 @@ def remote_get(filename=""):
         print(f"Gagal: {hasil['data']}")
         return False
 
-
-def remote_upload(filename="", filecontent=""):
-    command_str = f"UPLOAD {filename} {filecontent}"
-    hasil = send_command(command_str)
-    if (hasil['status'] == 'OK'):
-        print(hasil['data'])
-        return True
-    else:
-        print(f"Gagal: {hasil['data']}")  # Print the error message
+def remote_upload(filename=""): 
+    try:
+        with open(filename, 'rb') as file:
+            file_content = base64.b64encode(file.read()).decode()
+            logging.warning(f"String base64 sebelum upload: {file_content[:100]}...")  # Log string
+        command_str = f"UPLOAD {filename} {file_content}"
+        hasil = send_command(command_str)
+        if (hasil['status'] == 'OK'):
+            print(hasil['data'])
+            return True
+        else:
+            print(f"Gagal: {hasil['data']}")  # Print the error message
+            return False
+    except FileNotFoundError:
+        print(f"Error: File '{filename}' not found.")
         return False
-        
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
 def remote_delete(filename=""):
     command_str = f"DELETE {filename}"
     hasil = send_command(command_str)
@@ -97,16 +103,7 @@ def remote_delete(filename=""):
 if __name__ == '__main__':
     server_address = ('172.16.16.101', 6667)
     remote_list()
-    # remote_get('test.txt') # Pastikan file ini ada di server
-
-    filename = 'donalbebek.jpg'
-    try:
-        with open(filename, 'rb') as file:  # Baca file dalam mode binary
-            file_content = base64.b64encode(file.read()).decode()
-            logging.warning(f"String base64 sebelum upload: {file_content}")  # Log string
-        remote_upload(filename, file_content)
-    except FileNotFoundError:
-        print(f"Error: File '{filename}' not found.")
-
+    # remote_get('test.txt')
+    # remote_upload('donalbebek.jpg') 
     # remote_delete('donalbebek.jpg')
     remote_list()
