@@ -2,8 +2,6 @@ from socket import *
 import socket
 import threading
 import logging
-import time
-import sys
 
 from file_protocol import FileProtocol
 
@@ -20,7 +18,7 @@ class ProcessTheClient(threading.Thread):
     def run(self):
         while True:
             try:
-                data = self.connection.recv(1048576)
+                data = self.connection.recv(2**20)
                 if data:
                     d = data.decode()
                     hasil = fp.proses_string(d)

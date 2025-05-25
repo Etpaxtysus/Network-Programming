@@ -17,7 +17,7 @@ def send_command(command_str=""):
         data_received = ""  # empty string
         while True:
             # socket does not receive all data at once, data comes in part, need to be concatenated at the end of process
-            data = sock.recv(1048576)
+            data = sock.recv(2**20)
             if data:
                 # data is not empty, concat with previous content
                 data_received += data.decode()
@@ -56,11 +56,6 @@ def remote_get(filename=""):
         file_content = hasil['data_file'].strip()  # Bersihkan string
         logging.warning(f"String base64 sebelum decode (client): {file_content}")  # Log string
 
-        # Penanganan padding eksplisit
-        missing_padding = len(file_content) % 4
-        if missing_padding:
-            file_content += '=' * (4 - missing_padding)
-
         isifile = base64.b64decode(file_content)
         fp = open(namafile, 'wb+')
         fp.write(isifile)
@@ -70,9 +65,9 @@ def remote_get(filename=""):
         print(f"Gagal: {hasil['data']}")
         return False
 
-def remote_upload(filename=""): 
+def remote_upload(filename=""):  # Modifikasi: hanya menerima filename
     try:
-        with open(filename, 'rb') as file:
+        with open(filename, 'rb') as file:  # Baca file dalam mode binary
             file_content = base64.b64encode(file.read()).decode()
             logging.warning(f"String base64 sebelum upload: {file_content[:100]}...")  # Log string
         command_str = f"UPLOAD {filename} {file_content}"
@@ -103,7 +98,7 @@ def remote_delete(filename=""):
 if __name__ == '__main__':
     server_address = ('172.16.16.101', 6667)
     remote_list()
-    # remote_get('test.txt')
+    # remote_get('donalbebek.jpg')
     # remote_upload('donalbebek.jpg') 
     # remote_delete('donalbebek.jpg')
     remote_list()
